@@ -1,13 +1,15 @@
-from fastapi import APIRouter,Depends,status
-# from fastapi.exceptions import HTTPException
-from sqlalchemy.orm.session import Session
-from db.db import get_db
-# from db.db_user import create_user
-from db import db_user
-from schemas import UserBase,User_Display
-from typing import List
 from auth.auth2 import oauth2_scheme
 from auth.authentication import RoleChecker
+
+from db.db import get_db
+from db import db_user
+
+from fastapi import APIRouter,Depends,status
+from sqlalchemy.orm.session import Session
+from schemas import UserBase,User_Display
+from typing import List
+
+
 router = APIRouter(prefix="/users",tags=["users"])
 
 def write_log(message):

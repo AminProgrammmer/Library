@@ -12,7 +12,9 @@ def add_trust(detail,db):
     if not db.query(Book).where(detail.book_id==Book.id).first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="book not defined")
     elif not db.query(User).where(User.id==detail.user_id).first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found user")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found user or maybe user status is false")
+    elif db.query(User).where(User.id == detail.user_id and User.status == False):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="user status is false")
     elif count_book.count >= 1:
         count_book.count -= 1
         db.add(item)

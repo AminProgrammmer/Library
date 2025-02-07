@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime,Column,Integer,String,ForeignKey
+from sqlalchemy import DateTime,Column,Integer,String,ForeignKey,Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum
 import enum
@@ -12,12 +12,14 @@ class Genum(enum.Enum):
 class User(db.base):
     __tablename__ = "user"
     id = Column(Integer,index=True,primary_key=True)
+    status = Column(Boolean,default=True)
     username = Column(String(20),unique=True)
     password = Column(String)
     email = Column(String)
-    date = Column(DateTime)
-    expire_date = Column(DateTime)
+    date = Column(DateTime,default=datetime.now())
+    expire_date = Column(DateTime,default=datetime.now() + timedelta(weeks=48))
     is_admin = Column(Integer,default=0)
+    delay_penalty = Column(Integer,default=0)
     trust = relationship("Trust",back_populates="user")
     library = relationship("Library",back_populates="user")
 
@@ -48,7 +50,7 @@ class Book(db.base):
 class Trust(db.base):
     __tablename__ = "Trust"
     id = Column(Integer,index=True,primary_key=True)
-    book_id = Column(Integer,ForeignKey("book.id"))
+    book_id = Column(Integer,ForeignKey("book.id")) 
     delivery_time = Column(DateTime,default=datetime.now()+timedelta(days=7))
     user_id = Column(Integer,ForeignKey("user.id"))
     user = relationship("User",back_populates="trust")

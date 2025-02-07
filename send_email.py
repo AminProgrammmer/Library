@@ -1,60 +1,63 @@
-from fastapi import APIRouter
-from fastapi_mail import FastMail, MessageSchema,ConnectionConfig
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from pydantic import EmailStr, BaseModel,SecretStr
+from fastapi import APIRouter, Request, Query, HTTPException
+from fastapi_mail import MessageSchema, ConnectionConfig
+from fastapi.templating import Jinja2Templates
+
+from pydantic import EmailStr, BaseModel, SecretStr
 from typing import List
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+import logging
 import smtplib
+
 router = APIRouter(prefix="/Emails")
+template = Jinja2Templates(directory="templates/")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class EmailSchema(BaseModel):
-   email: List[EmailStr]
+    email:List[EmailStr]
+    subject: str
+    body: str
 
-
-# حالا پیکربندی را ایجاد کنید
 conf = ConnectionConfig(
-    MAIL_USERNAME="amin12387amin@gmail.com",
-    MAIL_PASSWORD="djwf hlap wono mynb",
-    MAIL_FROM="yzdym9931@gmail.com",
+    MAIL_USERNAME="a16685091@gmail.com",
+    MAIL_PASSWORD=SecretStr("pivu xeyv xidy qcih"),
+    MAIL_FROM="a16685091@gmail.com",
     MAIL_PORT=587,  # برای TLS
     MAIL_SERVER="smtp.gmail.com",
-    MAIL_FROM_NAME="amin",
-    MAIL_STARTTLS=True,  # فعال کردن TLS
-    MAIL_SSL_TLS=False,   # غیرفعال کردن SSL
-    USE_CREDENTIALS=True,
+    MAIL_FROM_NAME="Fastapi",
+    MAIL_STARTTLS=True,
+    MAIL_SSL_TLS=False,
+    USE_CREDENTIALS=True
 )
 
 @router.post("/send_email")
-async def send_mail(email: EmailSchema):
-	template = """
-		<html>
-		<body>
-		
+def send_email(email: EmailSchema):
+    try:
+        message = MessageSchema(
+            subject=email.subject,
+            recipients=email.email,
+            body=template.get_template("email.html").render(subject=email.subject, body=email.body),
+            subtype="html"
+        )
 
-<p>Hi !!!
-		<br>Thanks for using fastapi mail, keep using it..!!!</p>
+        msg = MIMEMultipart()
+        msg['From'] = conf.MAIL_FROM
+        msg['To'] = ", ".join(message.recipients)
+        msg['Subject'] = message.subject
 
+        msg.attach(MIMEText(message.body, 'html'))
 
-		</body>
-		</html>
-		"""
+        server = smtplib.SMTP(conf.MAIL_SERVER, conf.MAIL_PORT)
+        server.starttls()
+        server.login(conf.MAIL_USERNAME, conf.MAIL_PASSWORD.get_secret_value())
+        server.send_message(msg)
+        server.quit()
 
-	message = MessageSchema(
-		subject="Fastapi-Mail module",
-		recipients=email.dict().get("email"), # List of recipients, as many as you can pass 
-		body=template,
-		subtype="html"
-		)
+        return {"message": "Email has been sent"}
 
-	# fm = FastMail(conf)
-	# await fm.send_message(message)
-	# print(message)
- 
- 
-
-	
-	server = smtplib.SMTP(conf.MAIL_SERVER,conf.MAIL_PORT)
-	server.starttls()
-	server.login(conf.MAIL_FROM_NAME,conf.MAIL_PASSWORD.get_secret_value())
-	server.sendmail(from_addr=conf.MAIL_FROM_NAME,to_addrs=email,msg=message)
-	return JSONResponse(status_code=200, content={"message": "email has been sent"})
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail="There was an error sending the email")

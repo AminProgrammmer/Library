@@ -2,6 +2,8 @@ from db.datebase import Book
 from datetime import datetime
 from fastapi import status
 from fastapi.exceptions import HTTPException
+
+
 def add(genere,request,db):
     query = Book(
     name = request.name,

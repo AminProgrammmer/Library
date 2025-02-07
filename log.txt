@@ -50,3 +50,21 @@ added a user . detail : hosein by email : hosein@gmail.com
 got all users 
 got all users 
 got all users 
+added a user . detail : amin by email : amin@gmail.com 
+got all users 
+got all users 
+updated user by id 1 
+added a user . detail : Amin by email : yzdym9931@gmail.com 
+added a user . detail : Mohammad by email : aminimya27@gmail.com 
+added a user . detail : amin by email : yzdym9931@gmail.com 
+added a user . detail : mohamad by email : aminyzdym9931@gmail.com 
+got detail user by id 1 
+got all users 
+added a user . detail : cofenet by email : anglinamm@gmail.com 
+added a user . detail : cofenet by email : anglinamm@gmail.com 
+added a user . detail : cofenett by email : anglinammi@gmail.com 
+added a user . detail : cofenett by email : anglinammqi@gmail.com 
+added a user . detail : cofenett3 by email : anglinammqi@gmail.com 
+added a user . detail : amin by email : amin@gmail.com 
+added a user . detail : mohamadamin by email : amin@gmail.com 
+added a user . detail : mohamadamin by email : amin@gmail.com 

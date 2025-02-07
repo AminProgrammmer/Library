@@ -4,14 +4,28 @@ from fastapi import Depends
 from datetime import datetime,timedelta
 from db.datebase import Genum
 from db.db import get_db
-import enum
-from typing import List,Dict
+import re
+from typing import List
+
 class UserBase(BaseModel):
     username : str
     password : str
     email : EmailStr
-    date : datetime
-
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        if not re.search("[a-z]", v):
+            raise ValueError("Password must contain at least one lowercase letter")
+        if not re.search("[A-Z]", v):
+            raise ValueError("Password must contain at least one uppercase letter")
+        if not re.search("[0-9]", v):
+            raise ValueError("Password must contain at least one digit")
+        if not re.search("[@#$%^&+=]", v):
+            raise ValueError("Password must contain at least one special character (@#$%^&+=)")
+        return v
+    
     @field_validator("email")
     @classmethod
     def email_validate(cls,value):
@@ -25,18 +39,20 @@ class UserBase(BaseModel):
 
 
 
+
 class User_Display(BaseModel):
     id : int
+    status : bool
     username : str
     email:str 
     is_admin : int
+    expire_date : datetime
 
 
 class LibraryBase(BaseModel):
     name :str
     location :str
     # user_id : int
-
 
 
 class BookBase(BaseModel):
