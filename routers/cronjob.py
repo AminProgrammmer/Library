@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 async def background_task(session):
     while True:
+        
         try:
             first_user = session.query(User).where(User.id == 1).update({
             "is_admin": 2,
             "expire_date" : datetime.now() + timedelta(weeks=99999)
                 })
-            session.commit()
             
             users = session.query(User).all()
             for u in users:
@@ -32,7 +32,7 @@ async def background_task(session):
                         "status": False,
                         "delay_penalty" : u.delay_penalty + 20000
                     })
-                    session.commit()
+                    
                     email=send_email.EmailSchema(
                         email=[u.email],
                         subject=f"پایان اعتبار حساب کتابخانه شما!",
@@ -57,7 +57,7 @@ async def background_task(session):
                     session.query(User).where(t.delivery_time < datetime.now() and User.id == t.user.id).update({
                         "delay_penalty" : t.user.delay_penalty + 200
                     })
-                    session.commit()
+                
                     
                     email=send_email.EmailSchema(
                         email=[t.user.email],
@@ -69,6 +69,7 @@ async def background_task(session):
                     logger.info("Delivery time not reached yet")
         except Exception as e:
             logger.error(f"Error in background task: {e}")
+        session.commit()
         await asyncio.sleep(delay=86400)
         
 @asynccontextmanager
